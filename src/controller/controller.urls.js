@@ -22,12 +22,18 @@ export async function addShortUrl(req, res){
 
     const {url} = req.body;
 
-    if(token){
-        const account = await dbGetAccountByEmail(token.jsonwebtoken.email);
-        const shortUrl = await dbCreateShortenUrl(account.id, url)
-        return res.status(201).send(shortUrl);
-    } else {
-        return res.sendStatus(401);
+    try {
+        if(token){
+            const account = await dbGetAccountByEmail(token.jsonwebtoken.email);
+            const shortUrl = await dbCreateShortenUrl(account.id, url)
+
+            if(!shortUrl) throw new Error();
+            return res.status(201).send(shortUrl);
+        } else {
+            return res.sendStatus(401);
+        }
+    } catch (error) {
+        return res.sendStatus(409);
     }
 
 }

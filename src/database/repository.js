@@ -11,7 +11,6 @@ export async function dbCreateAccount(name, email, password){
         `, [name, email, password]);    
         return true;
     } catch(err) {
-        console.error(err);
         return false;
     }
 }
@@ -105,21 +104,24 @@ export async function dbDeleteShortenUrlById(owner_id, url_id){
 }
 export async function getAllLinkFromAccount(owner_id){
     try {
-        const userQuery = await db.query(`
-            SELECT 
-                urls.owner_id AS id,
-                accounts.name,
-                SUM(urls."visitCount") AS "visitCount"
-            FROM 
-                accounts
-            JOIN 
-                urls
-            ON 
-                accounts.id = urls.owner_id
+        const query = await db.query(`
+            SELECT
+                id,
+                name
+            FROM accounts
             WHERE
-                accounts.id=$1
+                id=$1
+        `, [owner_id]);
+
+        const userQuery = await db.query(`
+            SELECT
+                SUM("visitCount")
+            FROM 
+                urls
+            WHERE
+                owner_id=$1
             GROUP BY
-                accounts.name, urls.owner_id;
+                owner_id;
         `, [owner_id]);
 
         const allUrls = await db.query(`
@@ -129,16 +131,17 @@ export async function getAllLinkFromAccount(owner_id){
             WHERE owner_id=$1;
         `, [owner_id]);
 
-        const userInfos = userQuery.rows[0]
+        const visitCount = (userQuery.rows[0])? userQuery.rows[0].sum: 0;
         const obj = {
-            id: userInfos.id,
-            name: userInfos.name,
-            visitCount: userInfos.visitCount,
+            id: query.rows[0].id,
+            name: query.rows[0].name,
+            visitCount: visitCount,
             shortenedUrls: allUrls.rows,
         }
 
         return obj;
     } catch (err) {
+        console.log(err);
         return false;
     }
 }
