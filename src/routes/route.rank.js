@@ -5,6 +5,6 @@ import {
 
 const route = Router();
 
-route.post("/ranking");
+route.get("/ranking", ranking);
 
 export default route;

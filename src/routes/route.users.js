@@ -5,6 +5,6 @@ import {
 
 const route = Router();
 
-route.post("/users/me");
+route.get("/users/me", getMeUser);
 
 export default route;

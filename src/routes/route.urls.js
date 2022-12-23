@@ -8,9 +8,9 @@ import {
 
 const route = Router();
 
-route.post("/urls/shorten");
-route.get("/urls/:id");
-route.get("/urls/open/:shortUrl");
-route.delete("/urls/:id");
+route.post("/urls/shorten", addShortUrl);
+route.get("/urls/:id", getUrlById);
+route.get("/urls/open/:shortUrl", openShortUrl);
+route.delete("/urls/:id", deleteShortUrl);
 
 export default route;

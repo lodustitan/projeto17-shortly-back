@@ -1,12 +1,14 @@
 import jwt from "jsonwebtoken";
 import Joi from "joi";
+import bcrypt from "bcrypt";
 import { 
     dbCreateAccount, 
-    dbCreateShortenUrl,
     dbLoginAccount 
 } from "../database/repository.js";
+import dotenv from "dotenv";
+import verifySchema from "../services/verifySchema.js";
 
-const privateKey = "23HH42K";
+dotenv.config();
 
 export async function signUp(req, res){
 
@@ -25,13 +27,15 @@ export async function signUp(req, res){
     }
 
     const { name, email, password } = req.body;
-    const query = await dbCreateAccount(name, email, password);
-
-    if(query){
-        return res.status(201).send("Criado");
-    }else{
-        return res.sendStatus(409);
-    }
+    bcrypt.hash(password, 10, async function(err, hash) {
+        const query = await dbCreateAccount(name, email, hash);
+        
+        if(query){
+            return res.status(201).send("Criado");
+        }else{
+            return res.sendStatus(409);
+        }
+    });
 
 }
 export async function signIn(req, res){
@@ -41,22 +45,24 @@ export async function signIn(req, res){
         password: Joi.string().required()
     });
 
-    const validation = schema.validate(req.body, {abortEarly: false});
-
-    if (validation.error) {
-        const messages = validation.error.details.map(details => details.message);
-        return res.status(422).send(messages);
+    const verify = verifySchema(schema, req.body);
+    if(verify){
+        return res.status(422).send(verify);
     }
 
     const { email, password } = req.body;
-    const query = await dbLoginAccount(email, password);
+    const query = await dbLoginAccount(email);
+
+    bcrypt.compare(password, query, function(err, result) {
+        if(!result) return res.sendStatus(401);
+        const token = jwt.sign(req.body, process.env.JWTTOKEN_SECRET_KEY, {expiresIn: process.env.JWTTOKEN_EXPIRATION});
+        
+        if(query){
+            return res.status(200).send({token: `Bearer ${token}`});
+        }else{
+            return res.sendStatus(401);
+        }
+    });
     
-    const token = jwt.sign(req.body, privateKey, {expiresIn: '1h'});
-    
-    if(query){
-        return res.status(201).send({token: `Bearer ${token}`});
-    }else{
-        return res.sendStatus(400);
-    }
 
 }
