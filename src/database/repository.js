@@ -11,6 +11,7 @@ export async function dbCreateAccount(name, email, password){
         `, [name, email, password]);    
         return true;
     } catch(err) {
+        console.error(err);
         return false;
     }
 }
@@ -164,6 +165,6 @@ export async function dbGetRank(){
 
         return query.rows;
     } catch(err) {
-        return false;
+        return [];
     }
 }
