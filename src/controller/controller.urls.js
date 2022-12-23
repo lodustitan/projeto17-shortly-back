@@ -89,14 +89,14 @@ export async function deleteShortUrl(req, res){
 
     const {id} = req.params;
 
-    if(token){
-        try {
+    try {
+        if(token){
             const account = await dbGetAccountByEmail(token.jsonwebtoken.email, token.jsonwebtoken.password);
             const deleted= await dbDeleteShortenUrlById(account.id, id);
             if(deleted) return res.status(201).send("short url deleted");
             else throw new Error("");
-        } catch (error) {
-            return res.sendStatus(401);
         }
+    } catch (error) {
+            return res.sendStatus(401);
     }
 }

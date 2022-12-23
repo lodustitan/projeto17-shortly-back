@@ -55,7 +55,7 @@ export async function signIn(req, res){
 
     bcrypt.compare(password, query, function(err, result) {
         if(!result) return res.sendStatus(401);
-        const token = jwt.sign(req.body, "23HH42K", {expiresIn: "1"});
+        const token = jwt.sign(req.body, "23HH42K", {expiresIn: "1d"});
         
         if(query){
             return res.status(200).send({token: `Bearer ${token}`});

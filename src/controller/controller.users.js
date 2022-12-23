@@ -6,7 +6,7 @@ import verifyToken from "../services/verifyToken.js";
 
 export async function getMeUser(req, res){
     
-    const token = verifyToken(req.headers.authorization, res);
+    const token = verifyToken(req.headers.authorization);
 
     if(token){
         const account = await dbGetAccountByEmail(token.jsonwebtoken.email);

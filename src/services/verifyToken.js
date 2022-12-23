@@ -1,7 +1,4 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export default function verifyToken(request) {
     const token = request?.replace('Bearer ', '');
