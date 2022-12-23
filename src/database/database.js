@@ -8,7 +8,7 @@ const { Pool } = pg;
 let db;
 
 try {
-    db = new Pool({connectionString: process.env.DATABASE_URI});
+    db = new Pool({connectionString: process.env.DATABASE_URL});
 } catch (error) {
     console.error(error);
 }
